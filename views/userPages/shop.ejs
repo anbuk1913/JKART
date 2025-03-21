@@ -1,0 +1,294 @@
+<%- include('../userPartials/header') %>
+  <style>
+    .red-text {
+      color: red;
+    }
+  </style>
+  <!-- LIGHT SECTION -->
+  <section class="lightSection clearfix pageHeader">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="page-title">
+            <h2>Products</h2>
+
+          </div>
+        </div>
+        <div class="col-md-6">
+          <ol class="breadcrumb float-end">
+            <li>
+              <a href='/'>Home</a>
+            </li>
+            <li>
+              <a href="/shop">shop</a>
+            </li>
+            <li class="active">Products</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT SECTION -->
+  <section class="mainContent clearfix productsContent">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-3 col-md-4 sideBar">
+          <div class="accordion filter-accordion" id="accordionExample">
+            <div class="accordion-item panel">
+              <h2 class="accordion-header panel-heading d-md-none" id="headingTwo">
+                <div class="collapsed filter-button position-relative" role='button' data-bs-toggle="collapse"
+                  data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  All filters <span class="position-absolute end-0"><i class="fa fa-angle-down"></i></span>
+                </div>
+              </h2>
+
+              <div id="collapseTwo" class="accordion-collapse collapse d-md-block" aria-labelledby="headingTwo"
+                data-bs-parent="#accordionExample">
+                <div class="accordion-body px-0 pb-0 pt-md-0">
+                  <div class="panel panel-default">
+                    <div class="panel-heading">Product categories</div>
+                    <div class="panel-body">
+                      <div class="collapse navbar-collapse navbar-ex1-collapse navbar-side-collapse">
+                        <ul class="nav navbar-nav side-nav" id="accordion2" role="tablist" aria-multiselectable="true">
+                          <li>
+                            <div class="" role="tab" id="heading1">
+
+                              <% for(let i=0;i<categoryDetails.length;i++){ %>
+                                <a href="/shop/filter/byCategory?id=<%=categoryDetails[i]._id%>"
+                                  aria-controls="categoryName<%= i %>">
+                                  <%=categoryDetails[i].categoryName%>
+                                </a>
+                                <% } %>
+
+                            </div>
+                          </li>
+
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="panel panel-default priceRange">
+                    <div class="panel-heading">Filter by Price</div>
+                    <div class="panel-body clearfix">
+                      <div class="price-range" id="price-range">
+                        <div class="mb-4" id="slider-non-linear-step"></div>
+                        <div class="price-range-content">
+                          <!-- <input class="btn-default bg-primary me-auto" type="submit" value="Filter"> -->
+                          <form action="/shop/filter/byPrice">
+                            <label>
+                              <input type="radio" name="priceRange" value="0" />
+                              Less than $50</label>
+                            <br />
+                            <label>
+                              <input type="radio" name="priceRange" value="1" />
+                              $50 - $100</label>
+                            <br />
+                            <label>
+                              <input type="radio" name="priceRange" value="2" />
+                              $100 - $150</label>
+                            <br />
+                            <label>
+                              <input type="radio" name="priceRange" value="3" />
+                              $150 above</label>
+                            <br />
+                            <button type="submit" class="btn btn-primary" data-mdb-ripple-init>
+                              check <i class="fas fa-search"></i>
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-9 col-md-8">
+          <div class="row filterArea">
+            <div class="col-6">
+              <select name="sortBy" style="height: 50px;" id="sort" class="form control" onchange="sortProducts()">
+                <option value="0" disabled selected>Default sorting</option>
+                <option value="nameAsc">Sort by Name(Ascending)</option>
+                <option value="nameDes">Sort by Name(Descending)</option>
+                <option value="priceAsc">Sort by Price(Ascending)</option>
+                <option value="priceDes">Sort by Price(Descending)</option>
+                <option value="newProduct">Sort by Newest</option>
+              </select>
+            </div>
+
+
+          </div>
+
+          <script>
+            async function sortProducts() {
+              let response = await fetch(`/shop/sort/?sortBy=${sort.value}`, {
+                method: 'GET'
+              })
+              const result = await response.json()
+              if (result.success) {
+                window.location.reload()
+              }
+            }
+          
+          </script>
+
+
+          <div class="input-group">
+            <div>
+              <button class="btn btn-secondary" onclick="clearFilter()">
+                clear filter
+              </button>
+            </div>
+            <div class="form-outline" data-mdb-input-init>
+              <input type="search" name="searchValue" style="height: 40px;" id="searchValue"
+                placeholder="Search Products" class="form-control" />
+            </div>
+            <button type="button" onclick="fnSearch()" class="btn btn-primary" data-mdb-ripple-init>
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+
+
+          <script>
+            async function fnSearch() {
+              const searchValue = document.getElementById('searchValue').value
+              let response = await fetch('/searchProducts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ searchElement: searchValue })
+              })
+              let result = await response.json()
+              if (result.searchProduct) {
+                window.location.reload()
+              } else {
+                await Swal.fire({
+                  icon: "error",
+                  title: "No results",
+                });
+              }
+            }
+
+            async function clearFilter() {
+              let response = await fetch('/clearFilter', {
+                method: 'POST'
+              })
+              let result = await response.json()
+              if (result.success) {
+                window.location.reload()
+              }
+            }
+          </script>
+
+
+          <div class="row">
+            <% for(let i=0; i<productDet.length; i++){ %>
+              <div class="col-md-6 col-lg-4">
+                <div class="productBox">
+                  <div class="productImage clearfix">
+                    <a href="/singleProduct?id=<%= productDet[i]._id %>">
+                      <img src="assets/img/uploads/<%=productDet[i].productImage[0]%>" alt="products-img">
+                    </a>
+                  </div>
+                  <% if(productDet[i].isWishlisted==true){ %>
+                    <button id="removeWishlist<%=i%>" onclick="removeWishlist('<%=productDet[i]._id%>')"
+                      class='fa fa-heart fa-beat' style='font-size: 24px; color: red; background: none; border: none;'>
+                    </button>
+                    <% }else{ %>
+                      <button id="wishlist<%=i%>" onclick="addToWishlist('<%=productDet[i]._id%>')" class='fa fa-heart fa-beat'
+                        style='font-size: 24px; color: white; background: none; border: none; text-shadow: 0 0 5px black;'>
+                      </button>
+                      <% } %>
+
+                        <script>
+                          async function addToWishlist(productId) {
+                            let response = await fetch(`/addToWishlist?id=${productId}`, {
+                              method: 'POST'
+                            })
+                            let result = await response.json()
+                            if (result.success) {
+                              await Swal.fire({
+                                icon: "success",
+                                title: "Product added to Wishlist",
+                                showConfirmButton: false,
+                                timer: 1500
+                              });
+                              window.location.reload()
+                            } if (result.userNotLogged) {
+                              window.location.href = 'login'
+                            }
+                          }
+                          async function removeWishlist(productId) {
+                            let response = await fetch(`/removeWishlist?id=${productId}`, {
+                              method: 'DELETE'
+                            })
+                            let result = await response.json()
+                            if (result.success) {
+                              await Swal.fire({
+                                icon: "success",
+                                title: "Product removed from Wishlist",
+                                showConfirmButton: false,
+                                timer: 1500
+                              });
+                              window.location.reload()
+                            } if (result.userNotLogged) {
+                              window.location.href = 'login'
+                            }
+                          }
+                        </script>
+                        <div class="productCaption clearfix">
+                          <h5>
+                            <%=productDet[i].productName%>
+                          </h5>
+                          <% if(productDet[i].productPrice != productDet[i].offerPrice) { %>
+                            <h3>$ <%= productDet[i].offerPrice %> <span class="red-text"><s>$ <%= productDet[i].productPrice %></s></span></h3>
+                        <% } else { %>
+                            <h3>$ <%= productDet[i].productPrice %></h3>
+                        <% } %>
+                        
+
+
+
+                                <% if(productDet[i].productStock===0){%>
+                                  <h6 style="color: red;">Out of stock</h6>
+                                  <% }%>
+                                    <% if(productDet[i].productStock<10 && productDet[i].productStock>0){%>
+                                      <h6 style="color: red;">Limited stock only <%=productDet[i].productStock%> left
+                                      </h6>
+                                      <% }%>
+                                        <!-- <h3><%=productDet[i].productStock%></h3> -->
+                        </div>
+                </div>
+              </div>
+              <% } %>
+
+          </div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li class="page-item"><a class="page-link">Pages</a></li>
+
+              <% for(let i=0;i<totalPages;i++){ %>
+                <li class="page-item"><a class="page-link" href="/shop?pageNo=<%=i+1%>">
+                    <%=i+1%>
+                  </a></li>
+                <% } %>
+
+                  <!-- <li class="page-item"><a class="page-link" href="/shop?pageId=2">2</a></li>
+              <li class="page-item"><a class="page-link" href="/shop?pageId=3">3</a></li> -->
+
+
+                  <!-- <li class="page-item"><a class="page-link">Next</a></li> -->
+            </ul>
+          </nav>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <%- include('../userPartials/footer') %>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Product</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"
+    integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/additional-methods.min.js"
+    integrity="sha512-TiQST7x/0aMjgVTcep29gi+q5Lk5gVTUPE9XgN0g96rwtjEjLpod4mlBRKWHeBcvGBAEvJBmfDqh2hfMMmg+5A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+
+
+  <style>
+    .container {
+      margin: 0 auto;
+      /* Centers the container horizontally */
+      max-width: 600px;
+      /* Optional: Set maximum width of the container */
+    }
+
+    .error {
+      color: red;
+    }
+
+    #image-preview {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .canvas-image,
+    .preview-image {
+      max-width: 150px;
+      /* Set the maximum width of preview images */
+      max-height: 150px;
+      /* Set the maximum height of preview images */
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .crop-img-conatiner {
+      width: 300px;
+      height: 300px;
+      margin-bottom: 60px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="navbar navbar-light bg-light justify-content-between">
+      <a href="/admin"> <img src="./assets/img/logo.png" alt="gg"></a>
+      <a href="/admin" style="text-decoration: none; color: black;">
+        <h1>Jkart</h1>
+      </a>
+
+    </nav>
+  </div>
+  <div class="container">
+    <h1>ADD PRODUCT</h1>
+
+
+
+    <form id="addProduct" enctype="multipart/form-data">
+
+      <div class="form-group">
+        <label for="exampleFormControlInput1">Product Name</label>
+        <input type="text" name="productName" class="form-control" id="exampleFormControlInput1" placeholder=""
+          maxlength="50" style="max-width: 200px;">
+      </div>
+      <br>
+      <select name="parentCategory" class="form-control form-control md" style="max-width: 200px;">
+        <option disabled selected>Select Parent Category</option>
+        <% for(let i=0;i<categoryDet.length;i++){ %>
+
+          <option value="<%=categoryDet[i]._id%>">
+            <%=categoryDet[i].categoryName%>
+          </option>
+
+          <% } %>
+      </select>
+      <br>
+
+      <div class="form-group">
+        <label for="images">Add image</label>
+        <input type="file" accept="image/*" name="images" class="form-control-file" id="images" multiple>
+        <!-- Image preview container -->
+        <div id="image-preview" style="max-width: 400px;"></div>
+      </div>
+      <br>
+
+
+
+      <br>
+      <div class="form-group">
+        <label for="exampleFormControlInput1">Product Price</label>
+        <input class="form-control" name="productPrice" type="text" placeholder="" maxlength="50"
+          style="max-width: 200px;">
+      </div>
+      <br>
+      <div class="form-group">
+        <label for="exampleFormControlInput1">Product Stock</label>
+        <input class="form-control" name="productStock" type="text" placeholder="" maxlength="50"
+          style="max-width: 200px;">
+      </div>
+      <br>
+      <button type="submit" class="btn btn-success">Add</button>
+    </form>
+    <script>
+
+      const imageArray = []
+      // Function to handle file input change event and display image previews
+      function previewImages() {
+        var preview = document.getElementById('image-preview');
+     //   preview.innerHTML = ''; // Clear previous preview
+
+        var files = document.getElementById('images').files;
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var reader = new FileReader();
+
+
+          reader.onload = function (event) {
+            var img = document.createElement('img');
+            var div = document.createElement('div');
+            div.className = "crop-img-conatiner"
+            img.className = 'canvas-image';
+            img.src = event.target.result;
+            // console.log(event.target.result);
+            // image.push(event.target.result)
+            div.appendChild(img)
+            preview.appendChild(div);
+
+            // Initialize cropper for the image
+            initializeCropper(img);
+          }
+
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function initializeCropper(image) {
+        var cropper = new Cropper(image, {
+          aspectRatio: NaN,
+          viewMode: 1,
+          autoCropArea: 1,
+          cropBoxResizable: false,
+          preview: '.preview'
+        });
+
+        // Add a button to crop the image
+        var cropButton = document.createElement('button');
+        cropButton.className = 'btn btn-primary';
+        cropButton.innerText = 'Crop';
+        cropButton.addEventListener('click', function () {
+          cropper.getCroppedCanvas().toBlob(function (blob) {
+            // Show the cropped image preview
+            var previewImage = document.createElement('img');
+            var deleteButton = document.createElement('button');
+            previewImage.className = 'preview-image';
+
+            deleteButton.textContent = 'Drop';
+            deleteButton.className = 'btn btn-sm btn-danger';
+            deleteButton.style.marginTop = '10px';
+            deleteButton.addEventListener('click', () => {
+              previewImage.parentNode.removeChild(previewImage);
+              deleteButton.parentNode.removeChild(deleteButton);
+              const index = imageArray.indexOf(blob);
+              console.log(index);
+              if (index !== -1) {
+                console.log(index);
+                imageArray.splice(index, 1);
+              }
+            });
+
+            imageArray.push(blob)
+            previewImage.src = URL.createObjectURL(blob); // Create a URL for the blob
+            document.getElementById('image-preview').appendChild(previewImage);
+            document.getElementById('image-preview').appendChild(deleteButton);
+          });
+        });
+        image.parentNode.appendChild(cropButton);
+
+
+
+      }
+
+
+      // Attach the previewImages function to the change event of the file input
+      document.getElementById('images').addEventListener('change', previewImages);
+
+      $('#addProduct').validate({
+        rules: {
+          productName: {
+            required: true,
+          },
+          productPrice: {
+            required: true,
+            pattern: "[0-9]+"
+          },
+          productStock: {
+            required: true,
+            pattern: "[0-9]+"
+          },
+          parentCategory: {
+            required: true,
+
+          }
+        },
+
+        submitHandler: async (form, event, blob) => {
+          event.preventDefault();
+
+          // Create a new FormData object
+          const formData = new FormData(form);
+
+          // Select the preview images
+          var previewImages = document.querySelectorAll('.preview-image');
+          console.log('preview', previewImages);
+
+          // Loop through each preview image
+          imageArray.forEach(function (previewImage, index) {
+
+            console.log("imageeeeee", previewImage);
+
+            formData.append('croppedImage' + index, previewImage);
+          });
+
+          // Append the original image Blob to FormData
+          formData.append('originalImage', blob);
+
+          // Send the FormData via POST request
+          try {
+            let response = await fetch('/addProducts', {
+              method: 'POST',
+              body: formData
+            });
+
+            let result = await response.json();
+
+            // Handle response accordingly
+            if (result.exists) {
+              await Swal.fire({
+                icon: "error",
+                title: "Product Already exists"
+              });
+            } else if (result.success) {
+              await Swal.fire({
+                icon: "success",
+                title: "Product Added"
+              });
+              window.location.href = '/productManagement';
+            } else if (result.noValue) {
+              await Swal.fire({
+                icon: "error",
+                title: "No Value in Product Name"
+              });
+            } else if (result.minImage) {
+              await Swal.fire({
+                icon: "error",
+                title: "Add at least 3 images"
+              });
+            }else if(result.whitespaceAlert){
+              await Swal.fire({
+                icon: "error",
+                title: "Enter proper format for product name"
+              });
+            }
+          } catch (error) {
+            console.error('Error sending data:', error);
+          }
+        }
+
+      })
+      function dataURItoBlob(dataURI) {
+        console.log("Data URI:", dataURI);
+
+        // Check if dataURI is in the correct format
+        if (!dataURI.startsWith('data:image/png;base64,')) {
+          console.error('Invalid data URI format');
+          return null;
+        }
+
+        // Extract base64 string
+        var base64String = dataURI.split(',')[1];
+
+        // Decode base64 string
+        var byteString;
+        try {
+          byteString = atob(base64String);
+        } catch (error) {
+          console.error('Error decoding base64 string:', error);
+          return null;
+        }
+
+        console.log("Byte String:", byteString);
+
+        // Extract MIME type
+        var mimeString = 'image/png'; // Force PNG format
+        console.log("MIME String:", mimeString);
+
+        // Convert to ArrayBuffer
+        var ab = new ArrayBuffer(byteString.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+
+        // Create Blob object
+        var blob;
+        try {
+          blob = new Blob([ab], { type: mimeString });
+        } catch (error) {
+          console.error('Error creating Blob:', error);
+          return null;
+        }
+
+        return blob;
+      }
+
+
+
+    </script>
+
+  </div>
+  <script>
+
+  </script>
+</body>
+
+</html>
